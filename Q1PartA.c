@@ -2,67 +2,72 @@
 #include <stdlib.h>
 #include <math.h>
 
-void calculate(int list[], int totalNumberOfProcess, FILE *file, int processorID, int pid[]);
+
+typedef struct {
+    int pid;
+    int burstime;
+    int memory;
+}process;
+
+void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID);
 
 void main()
 {
-
     int k;
     float avg_WaitTime, avg_TurnaroundTime, avg_cycles, totalWaiting = 0, totalTurnAround = 0, totalCycle = 0;
-    printf("This program is utilizing FIFO algorithm:\n\n");
+    int totalNumberOfProcess = 50;
 
-    int totalNumberOfProcess = 250;
-    // int totalNumberOfProcess = 36;
+    // File Variables
+    FILE *file;
+    FILE *fp;
+
+    //Variables for process array
+    process pArray[totalNumberOfProcess];
+    int count = 0;
+    printf("This program is utilizing FIFO algorithm:\n\n");
 
     // System has 250 processes
     int processorID[totalNumberOfProcess];
-    int burstTimeList[totalNumberOfProcess];
 
     int readyList[totalNumberOfProcess];
 
-    int processor1[totalNumberOfProcess / 6];
-    int processor2[totalNumberOfProcess / 6];
-    int processor3[totalNumberOfProcess / 6];
-    int processor4[totalNumberOfProcess / 6];
-    int processor5[totalNumberOfProcess / 6];
-    int processor6[totalNumberOfProcess / 6];
+    process processor1[totalNumberOfProcess / 6];
+    process processor2[totalNumberOfProcess / 6];
+    process processor3[totalNumberOfProcess / 6];
+    process processor4[totalNumberOfProcess / 6];
+    process processor5[totalNumberOfProcess / 6];
+    process processor6[totalNumberOfProcess / 6];
 
-    // Just initializing the processor array.
+
+    // Just initializing the processor array with -1 PID
     for (int i = 0; i < totalNumberOfProcess / 6; i++)
     {
-        processor1[i] = -1;
-        processor2[i] = -1;
-        processor3[i] = -1;
-        processor4[i] = -1;
-        processor5[i] = -1;
-        processor6[i] = -1;
+        process temp = { -1, -1, -1};
+        processor1[i] = temp;
+        processor2[i] = temp;
+        processor3[i] = temp;
+        processor4[i] = temp;
+        processor5[i] = temp;
+        processor6[i] = temp;
     }
 
-    FILE *file;
+    // Open CSV with processes and store it into an array of structs
 
-    int burstTimeMax = (int)(pow(10, 6)); // x 10 ^ 6 cycles
-    int burstTimeMin = 10;                // x 10 ^ 6 cycles
-    int memoryMax = 16000;                // in MB
-    int memoryMin = 1;                    // in MB
-
-    // Generates 250 processes
-    for (int i = 0; i < totalNumberOfProcess; i++)
-    {
-        // the following generating random numbers in a range was found on:
-        // "https://www.geeksforgeeks.org/generating-random-number-range-c/"
-        int memory = (rand() % (memoryMax - memoryMin + 1)) + memoryMin;
-        int burstTime = (rand() % (burstTimeMax - burstTimeMin + 1)) + burstTimeMin;
-
-        // index = pid, value = burstTime.
-        readyList[i] = burstTime;
+    fp = fopen("processes.csv", "r");
+    if (fp == NULL) {
+        fprintf(stderr, "Error reading file\n");
     }
 
-    int pid1[totalNumberOfProcess / 6];
-    int pid2[totalNumberOfProcess / 6];
-    int pid3[totalNumberOfProcess / 6];
-    int pid4[totalNumberOfProcess / 6];
-    int pid5[totalNumberOfProcess / 6];
-    int pid6[totalNumberOfProcess / 6];
+    while (fscanf(fp, " %d,%d,%d", &pArray[count].pid, &pArray[count].burstime, &pArray[count].memory)  == 3) {
+        count++;
+    }
+
+    for (int i = 0; i < count; i++) {
+        printf("%d,%d,%d\n", pArray[i].pid, pArray[i].burstime, pArray[i].memory);
+    }
+   
+    fclose(fp);
+    //printf("%d",pArray[3].burstime);
 
     int i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0, i6 = 0;
 
@@ -75,46 +80,35 @@ void main()
             index = 0;
         }
 
-        if (processor1[index] == -1)
+        if (processor1[index].pid == -1)
         {
-            processor1[index] = readyList[readyIndex];
-            pid1[i1] = readyIndex;
-            i1++;
+            processor1[index] = pArray[readyIndex];
         }
-        else if (processor2[index] == -1)
-        {
 
-            processor2[index] = readyList[readyIndex];
-            pid2[i2] = readyIndex;
-            i2++;
-        }
-        else if (processor3[index] == -1)
+        else if (processor2[index].pid == -1)
         {
-            processor3[index] = readyList[readyIndex];
-            pid3[i3] = readyIndex;
-            i3++;
+            processor2[index] = pArray[readyIndex];
         }
-        else if (processor4[index] == -1)
+        else if (processor3[index].pid == -1)
         {
-            processor4[index] = readyList[readyIndex];
-            pid4[i4] = readyIndex;
-            i4++;
+            processor3[index] = pArray[readyIndex];
         }
-        else if (processor5[index] == -1)
+        else if (processor4[index].pid == -1)
         {
-            processor5[index] = readyList[readyIndex];
-            pid5[i5] = readyIndex;
-            i5++;
+            processor4[index] = pArray[readyIndex];
+        }
+        else if (processor5[index].pid == -1)
+        {
+            processor5[index] = pArray[readyIndex];
         }
         else
         {
-            processor6[index] = readyList[readyIndex];
-            pid6[i6] = readyIndex;
-            i6++;
+            processor6[index] = pArray[readyIndex];
         }
         index++;
         readyIndex++;
     }
+
     file = fopen("Q1A.txt", "w");
     if (file == NULL)
     {
@@ -132,34 +126,34 @@ void main()
         if (j == 1)
         {
             // void calculate(processor1, 'processor1', totalNumberOfProcess, file);
-            calculate(processor1, totalNumberOfProcess, file, j, pid1);
+            calculate(processor1, totalNumberOfProcess, file, j);
         }
         else if (j == 2)
         {
-            calculate(processor2, totalNumberOfProcess, file, j, pid2);
+            calculate(processor2, totalNumberOfProcess, file, j);
         }
         else if (j == 3)
         {
-            calculate(processor3, totalNumberOfProcess, file, j, pid3);
+            calculate(processor3, totalNumberOfProcess, file, j);
         }
         else if (j == 4)
         {
-            calculate(processor4, totalNumberOfProcess, file, j, pid4);
+            calculate(processor4, totalNumberOfProcess, file, j);
         }
         else if (j == 5)
         {
-            calculate(processor5, totalNumberOfProcess, file, j, pid5);
+            calculate(processor5, totalNumberOfProcess, file, j);
         }
         else
         {
-            calculate(processor6, totalNumberOfProcess, file, j, pid6);
+            calculate(processor6, totalNumberOfProcess, file, j);
         }
     }
 
     fclose(file);
 }
 
-void calculate(int list[], int totalNumberOfProcess, FILE *file, int processorID, int pid[])
+void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID)
 {
     int length = totalNumberOfProcess / 6;
     int totalWaiting = 0;
@@ -179,7 +173,7 @@ void calculate(int list[], int totalNumberOfProcess, FILE *file, int processorID
         for (int r = 0; r < c; r++)
         {
 
-            waitingTime[c] = waitingTime[c - 1] + list[r];
+            waitingTime[c] = waitingTime[c - 1] + list[r].burstime;
         }
 
         totalWaiting += waitingTime[c];
@@ -193,11 +187,11 @@ void calculate(int list[], int totalNumberOfProcess, FILE *file, int processorID
 
         // TR = W + Burst Time
 
-        turnAroundTime[f] = list[f] + waitingTime[f];
+        turnAroundTime[f] = list[f].burstime + waitingTime[f];
 
         totalTurnAround += turnAroundTime[f];
 
-        fprintf(file, "\n p:%d, TurnAround Time: %d, Waiting Time: %d, ", pid[f], turnAroundTime[f], waitingTime[f]);
+        fprintf(file, "\n p:%d, TurnAround Time: %d, Waiting Time: %d, ", list[f].pid, turnAroundTime[f], waitingTime[f]);
     }
 
     avg_TurnaroundTime = ((float)totalTurnAround) / length;
