@@ -9,13 +9,15 @@ typedef struct
   int memory;
 } process;
 
-void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, process remBurstTime[]);
+void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, process remBurstTime[], float *avgTR, float *avgWT);
 
 void main()
 {
   // File Variables
   FILE *file;
   FILE *fp;
+  float avgTR = 0.0;
+  float avgWT = 0.0;
   float avg_WaitTime, avg_TurnaroundTime,
       avg_cycles, avg_MemoryFootprint,
       totalWaiting = 0, totalTurnAround = 0,
@@ -137,37 +139,41 @@ void main()
     if (j == 1)
     {
       // void calculate(processor1, 'processor1', totalNumberOfProcess, file);
-      calculate(processor1, totalNumberOfProcess, file, j, remBurstTime1);
+      calculate(processor1, totalNumberOfProcess, file, j, remBurstTime1, &avgTR, &avgWT);
     }
     else if (j == 2)
     {
 
-      calculate(processor2, totalNumberOfProcess, file, j, remBurstTime2);
+      calculate(processor2, totalNumberOfProcess, file, j, remBurstTime2, &avgTR, &avgWT);
     }
     else if (j == 3)
     {
-      calculate(processor3, totalNumberOfProcess, file, j, remBurstTime3);
+      calculate(processor3, totalNumberOfProcess, file, j, remBurstTime3, &avgTR, &avgWT);
     }
     else if (j == 4)
     {
-      calculate(processor4, totalNumberOfProcess, file, j, remBurstTime4);
+      calculate(processor4, totalNumberOfProcess, file, j, remBurstTime4, &avgTR, &avgWT);
     }
     else if (j == 5)
     {
-      calculate(processor5, totalNumberOfProcess, file, j, remBurstTime5);
+      calculate(processor5, totalNumberOfProcess, file, j, remBurstTime5, &avgTR, &avgWT);
     }
     else
     {
-      calculate(processor6, totalNumberOfProcess, file, j, remBurstTime6);
+      calculate(processor6, totalNumberOfProcess, file, j, remBurstTime6, &avgTR, &avgWT);
     }
   }
 
+  printf("Overall WT AVG: %f", avgWT / (totalNumberOfProcess / 6));
+    printf("\tOverall TR AVG: %f", avgTR / (totalNumberOfProcess / 6));
+    fprintf(file, "Overall WT AVG: %f", avgWT / (totalNumberOfProcess / 6));
+    fprintf(file, "\tOverall TR AVG: %f", avgTR / (totalNumberOfProcess / 6));
   fclose(file);
 }
 
 // PROBLEM is that the value of the remBurstTime or the
 
-void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, process remBurstTime[])
+void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, process remBurstTime[], float *avgTR, float *avgWT)
 {
   int totalNumber = 0;
   int length = totalNumberOfProcess / 6;
@@ -178,15 +184,15 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
 
   int terminationFlag = 0;
 
-/*
-  for(int i = 0; i < length; i++){
-    printf("\nPID = %d", list[i].pid);
-    printf("\tWith index = %d", i);
-    printf("\tBT = %d", list[i].burstime);
-  }
+  /*
+    for(int i = 0; i < length; i++){
+      printf("\nPID = %d", list[i].pid);
+      printf("\tWith index = %d", i);
+      printf("\tBT = %d", list[i].burstime);
+    }
 
-  printf("\n----------------------------------------\n");
-*/
+    printf("\n----------------------------------------\n");
+  */
 
   for (timeStamp = 0, count = 0; remain != 0;)
   {
@@ -207,12 +213,10 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
       remBurstTime[count].burstime -= quantum; // difference between quantum and burstTime, so 100 - 50
 
       timeStamp += quantum;
-      
     }
 
     if (remBurstTime[count].burstime == -1 && terminationFlag == 1 && remBurstTime[count].pid != -1)
     {
-      
 
       remain--;
       // TurnAround Time = TimeStamp of time the processor terminated x number
@@ -227,10 +231,10 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
       terminationFlag = 0;
     }
 
-    if (count >= (totalNumberOfProcess/6) - 1)
+    if (count >= (totalNumberOfProcess / 6) - 1)
     { // if the counter reaches to the last process, we reset.
       count = 0;
-      //timeStamp = 0;
+      // timeStamp = 0;
     }
     else
     {
@@ -247,4 +251,7 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
   printf("\nProcessor %d", processorID);
   printf("\nWait Time AVG = %f", wtAVG);
   printf("\nTurnaround Time AVG = %f\n\n", trAVG);
+
+  *avgTR += trAVG;
+  *avgWT += wtAVG;
 }
