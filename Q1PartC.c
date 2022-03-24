@@ -171,16 +171,27 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
 {
   int totalNumber = 0;
   int length = totalNumberOfProcess / 6;
-  int quantum = 2000;
+  int quantum = 5000;
 
   int timeStamp, count, tr = 0, wt = 0;
   int remain = length;
 
   int terminationFlag = 0;
+
+/*
+  for(int i = 0; i < length; i++){
+    printf("\nPID = %d", list[i].pid);
+    printf("\tWith index = %d", i);
+    printf("\tBT = %d", list[i].burstime);
+  }
+
+  printf("\n----------------------------------------\n");
+*/
+
   for (timeStamp = 0, count = 0; remain != 0;)
   {
 
-    if (remBurstTime[count].burstime <= quantum && remBurstTime[count].burstime > 0)
+    if (remBurstTime[count].burstime <= quantum && remBurstTime[count].burstime > 0 && remBurstTime[count].pid != -1)
     {
       // remBurstTime is just the list of burst Time but we use remBurstTime to keep track of
       // which burstime we have looked at.
@@ -190,16 +201,18 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
 
       terminationFlag = 1;
     }
-    else if (remBurstTime[count].burstime > 0) // it's greater than the quantum time, so lets say quantum time is 50, and our burstime = 100,
+    else if (remBurstTime[count].burstime > 0 && remBurstTime[count].pid != -1) // it's greater than the quantum time, so lets say quantum time is 50, and our burstime = 100,
     {
 
       remBurstTime[count].burstime -= quantum; // difference between quantum and burstTime, so 100 - 50
 
       timeStamp += quantum;
+      
     }
 
-    if (remBurstTime[count].burstime == -1 && terminationFlag == 1)
+    if (remBurstTime[count].burstime == -1 && terminationFlag == 1 && remBurstTime[count].pid != -1)
     {
+      
 
       remain--;
       // TurnAround Time = TimeStamp of time the processor terminated x number
@@ -209,14 +222,15 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
       // Waiting time = TR - Processor's burst time.
 
       wt += (timeStamp - list[count].burstime);
-
-      fprintf(file, "p%d: \t|\t%d\t|\t%d\n", list[count].pid, timeStamp, tr - list[count].burstime);
+      printf("p%d: \t|\t%d\t|\t%d\n", list[count].pid, timeStamp, timeStamp - list[count].burstime);
+      fprintf(file, "p%d: \t|\t%d\t|\t%d\n", list[count].pid, timeStamp, timeStamp - list[count].burstime);
       terminationFlag = 0;
     }
 
-    if (count == totalNumberOfProcess - 1)
+    if (count >= (totalNumberOfProcess/6) - 1)
     { // if the counter reaches to the last process, we reset.
       count = 0;
+      //timeStamp = 0;
     }
     else
     {
