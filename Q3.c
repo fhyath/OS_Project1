@@ -251,10 +251,10 @@ void main()
         }
     }
 
-    printf("Overall WT AVG: %f", avgWT / (totalNumberOfProcess / 6));
-    printf("\tOverall TR AVG: %f", avgTR / (totalNumberOfProcess / 6));
-    fprintf(file, "Overall WT AVG: %f", avgWT / (totalNumberOfProcess / 6));
-    fprintf(file, "\tOverall TR AVG: %f", avgTR / (totalNumberOfProcess / 6));
+    printf("Overall WT AVG: %f", avgWT / numOfProcessors);
+    printf("\tOverall TR AVG: %f", avgTR / numOfProcessors);
+    fprintf(file, "Overall WT AVG: %f", avgWT / numOfProcessors);
+    fprintf(file, "\tOverall TR AVG: %f", avgTR / numOfProcessors);
     fclose(file);
 }
 
