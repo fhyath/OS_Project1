@@ -24,28 +24,29 @@ void main()
       totalCycle = 0, totalMemoryFootprint = 0;
 
   int totalNumberOfProcess = 250;
+  int numOfProcessors = 6;
 
   // Variables for process array
   process pArray[totalNumberOfProcess];
   int count = 0;
   printf("This program is utilizing RR algorithm:\n\n");
 
-  process remBurstTime1[totalNumberOfProcess / 6];
-  process remBurstTime2[totalNumberOfProcess / 6];
-  process remBurstTime3[totalNumberOfProcess / 6];
-  process remBurstTime4[totalNumberOfProcess / 6];
-  process remBurstTime5[totalNumberOfProcess / 6];
-  process remBurstTime6[totalNumberOfProcess / 6];
+  process remBurstTime1[totalNumberOfProcess / numOfProcessors];
+  process remBurstTime2[totalNumberOfProcess / numOfProcessors];
+  process remBurstTime3[totalNumberOfProcess / numOfProcessors];
+  process remBurstTime4[totalNumberOfProcess / numOfProcessors];
+  process remBurstTime5[totalNumberOfProcess / numOfProcessors];
+  process remBurstTime6[totalNumberOfProcess / numOfProcessors];
 
-  process processor1[totalNumberOfProcess / 6];
-  process processor2[totalNumberOfProcess / 6];
-  process processor3[totalNumberOfProcess / 6];
-  process processor4[totalNumberOfProcess / 6];
-  process processor5[totalNumberOfProcess / 6];
-  process processor6[totalNumberOfProcess / 6];
+  process processor1[totalNumberOfProcess / numOfProcessors];
+  process processor2[totalNumberOfProcess / numOfProcessors];
+  process processor3[totalNumberOfProcess / numOfProcessors];
+  process processor4[totalNumberOfProcess / numOfProcessors];
+  process processor5[totalNumberOfProcess / numOfProcessors];
+  process processor6[totalNumberOfProcess / numOfProcessors];
 
   // Just initializing the processor array with -1 PID
-  for (int i = 0; i < totalNumberOfProcess / 6; i++)
+  for (int i = 0; i < totalNumberOfProcess / numOfProcessors; i++)
   {
     process temp = {-1, -1, -1};
     processor1[i] = temp;
@@ -87,7 +88,7 @@ void main()
   int index = 0;
   while (readyIndex < totalNumberOfProcess)
   {
-    if (index >= totalNumberOfProcess / 6)
+    if (index >= totalNumberOfProcess / numOfProcessors)
     {
       index = 0;
     }
@@ -164,10 +165,10 @@ void main()
     }
   }
 
-  printf("Overall WT AVG: %f", avgWT / (totalNumberOfProcess / 6));
-    printf("\tOverall TR AVG: %f", avgTR / (totalNumberOfProcess / 6));
-    fprintf(file, "Overall WT AVG: %f", avgWT / (totalNumberOfProcess / 6));
-    fprintf(file, "\tOverall TR AVG: %f", avgTR / (totalNumberOfProcess / 6));
+  printf("Overall WT AVG: %f", avgWT / (numOfProcessors));
+  printf("\tOverall TR AVG: %f", avgTR / (numOfProcessors));
+  fprintf(file, "Overall WT AVG: %f", avgWT / (numOfProcessors));
+  fprintf(file, "\tOverall TR AVG: %f", avgTR / (numOfProcessors));
   fclose(file);
 }
 
@@ -175,8 +176,9 @@ void main()
 
 void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, process remBurstTime[], float *avgTR, float *avgWT)
 {
+  int numOfProcessors = 6;
   int totalNumber = 0;
-  int length = totalNumberOfProcess / 6;
+  int length = totalNumberOfProcess / numOfProcessors;
   int quantum = 5000;
 
   int timeStamp, count, tr = 0, wt = 0;

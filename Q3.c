@@ -10,9 +10,9 @@ typedef struct
 } process;
 
 void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, float *avgTR, float *avgWT);
-
 void main()
 {
+
     float avgTR = 0.0;
     float avgWT = 0.0;
     float avg_WaitTime, avg_TurnaroundTime, avg_cycles, avg_MemoryFootprint, totalWaiting = 0, totalTurnAround = 0, totalCycle = 0, totalMemoryFootprint = 0;
@@ -23,6 +23,7 @@ void main()
     FILE *fp;
 
     int totalNumberOfProcess = 250;
+    int numOfProcessors = 6;
 
     int processorID[totalNumberOfProcess];
     int burstTimeList[totalNumberOfProcess];
@@ -32,17 +33,17 @@ void main()
     process pArray[totalNumberOfProcess];
     int count = 0;
 
-    process processor1[totalNumberOfProcess / 6];
-    process processor2[totalNumberOfProcess / 6];
-    process processor3[totalNumberOfProcess / 6];
-    process processor4[totalNumberOfProcess / 6];
-    process processor5[totalNumberOfProcess / 6];
-    process processor6[totalNumberOfProcess / 6];
+    process processor1[totalNumberOfProcess / numOfProcessors];
+    process processor2[totalNumberOfProcess / numOfProcessors];
+    process processor3[totalNumberOfProcess / numOfProcessors];
+    process processor4[totalNumberOfProcess / numOfProcessors];
+    process processor5[totalNumberOfProcess / numOfProcessors];
+    process processor6[totalNumberOfProcess / numOfProcessors];
 
     int readyList[totalNumberOfProcess];
 
     // Just initializing the processor array.
-    for (int i = 0; i < totalNumberOfProcess / 6; i++)
+    for (int i = 0; i < totalNumberOfProcess / numOfProcessors; i++)
     {
         process temp = {-1, -1, -1};
         processor1[i] = temp;
@@ -66,31 +67,44 @@ void main()
         count++;
     }
 
-    for (int i = 0; i < count; i++)
-    {
-        printf("%d,%d,%d\n", pArray[i].pid, pArray[i].burstime, pArray[i].memory);
-    }
-
+    /*
+        for (int i = 0; i < count; i++)
+        {
+            printf("%d,%d,%d\n", pArray[i].pid, pArray[i].burstime, pArray[i].memory);
+        }
+    */
     fclose(fp);
-    printf("%d", pArray[3].burstime);
+    // printf("%d", pArray[3].burstime);
+
+    int low = 0;
+    int high = totalNumberOfProcess - 1;
+
     // Orders the list, this greedy/brute force algorithm
     // is ordering it in Descending order from largest burst time to smallest.
     for (int j = 0; j < totalNumberOfProcess - 1; j++)
     {
         for (int l = j + 1; l < totalNumberOfProcess; l++)
         {
-            if (pArray[j].burstime < pArray[l].burstime)
+            if (pArray[j].burstime <= pArray[l].burstime)
             {
-                // Swaps the burstTime value in the correct order based on how fast
-                // the process terminates.
-                int temp = pArray[j].burstime;
-                pArray[j].burstime = pArray[l].burstime;
-                pArray[l].burstime = temp;
+                if (pArray[j].memory < pArray[l].memory)
+                {
 
-                // Swaps and updates what ordering processor needs to be in.
-                int tempProcessor = pArray[j].pid;
-                pArray[j].pid = pArray[l].pid;
-                pArray[l].pid = tempProcessor;
+                    // Swaps the burstTime value in the correct order based on how fast
+                    // the process terminates.
+                    int temp = pArray[j].burstime;
+                    pArray[j].burstime = pArray[l].burstime;
+                    pArray[l].burstime = temp;
+
+                    // Swaps and updates what ordering processor needs to be in.
+                    int tempProcessor = pArray[j].pid;
+                    pArray[j].pid = pArray[l].pid;
+                    pArray[l].pid = tempProcessor;
+
+                    int tempMem = pArray[j].memory;
+                    pArray[j].memory = pArray[l].memory;
+                    pArray[l].memory = tempMem;
+                }
             }
         }
     }
@@ -108,48 +122,87 @@ void main()
         int tempProcessor = pArray[pointer1].pid;
         pArray[pointer1].pid = pArray[pointer2].pid;
         pArray[pointer2].pid = tempProcessor;
+
+        int tempMem = pArray[pointer1].memory;
+        pArray[pointer1].memory = pArray[pointer2].memory;
+        pArray[pointer2].memory = tempMem;
+
         pointer1++;
         pointer2--;
     }
 
-    int readyIndex = 0;
-    int index = 0;
-    while (readyIndex < totalNumberOfProcess)
-    {
-        if (index >= totalNumberOfProcess / 6)
+    /*
+        for (int i = 0; i < count; i++)
         {
-            index = 0;
+            printf("p:%d\t|\t%d\n", pArray[i].pid ,pArray[i].burstime);
+        }
+    */
+
+    // Here we modify schedule so that we move processes to 3 efficiency cores
+    // or 3 high-power cores based on burstime.
+
+    // come up with a scheduling algorithm that assigns processes to either
+    // efficiency cores or high perf. cores, scheudle them, compute the turnaoround time,
+    // and benchmark them.
+    // 1) schedule algorithm to assign to efficinecy cores or high performance cores.
+    // 2) first 3 fast cores with small memory availability and the third half
+    //      will have bigger memory availability.
+
+    int readyIndexTop = 0;
+    int readyIndexBottom = totalNumberOfProcess - 1;
+    int indexTop = 0;
+    int indexBottom = 0;
+
+    int smallMemory = 0;
+    int largerMemory = 0;
+
+    while (readyIndexTop < readyIndexBottom)
+    {
+        if (indexTop >= totalNumberOfProcess / numOfProcessors)
+        {
+            indexTop = 0;
         }
 
-        if (processor1[index].pid == -1)
+        if (indexBottom >= totalNumberOfProcess / numOfProcessors)
         {
-            processor1[index] = pArray[readyIndex];
+            indexBottom = 0;
         }
-        else if (processor2[index].pid == -1)
+
+    
+        // Efficiency cores.
+        if (processor1[indexTop].pid == -1)
         {
-            processor2[index] = pArray[readyIndex];
+            processor1[indexTop] = pArray[readyIndexTop];
         }
-        else if (processor3[index].pid == -1)
+        else if (processor2[indexTop].pid == -1)
         {
-            processor3[index] = pArray[readyIndex];
+            processor2[indexTop] = pArray[readyIndexTop];
         }
-        else if (processor4[index].pid == -1)
+        else if (processor3[indexTop].pid == -1)
         {
-            processor4[index] = pArray[readyIndex];
+            processor3[indexTop] = pArray[readyIndexTop];
         }
-        else if (processor5[index].pid == -1)
+
+        // High-power cores
+        if (processor4[indexBottom].pid == -1)
         {
-            processor5[index] = pArray[readyIndex];
+            processor4[indexBottom] = pArray[readyIndexBottom];
         }
-        else if (processor6[index].pid == -1)
+        else if (processor5[indexBottom].pid == -1)
         {
-            processor6[index] = pArray[readyIndex];
+            processor5[indexBottom] = pArray[readyIndexBottom];
         }
-        index++;
-        readyIndex++;
+        else if (processor6[indexBottom].pid == -1)
+        {
+            processor6[indexBottom] = pArray[readyIndexBottom];
+        }
+        indexTop++;
+        indexBottom++;
+        readyIndexTop++;
+        readyIndexBottom--;
     }
 
-    file = fopen("Q1B.txt", "w");
+    file = fopen("Q3.txt", "w");
     if (file == NULL)
     {
         printf("Unable to create file.\n");
@@ -194,7 +247,8 @@ void main()
 
 void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, float *avgTR, float *avgWT)
 {
-    int length = totalNumberOfProcess / 6;
+    int numOfProcessors = 6;
+    int length = totalNumberOfProcess / numOfProcessors;
     int totalWaiting = 0;
     float avg_WaitTime, avg_TurnaroundTime;
     int totalTurnAround = 0;
