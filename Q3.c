@@ -9,10 +9,10 @@ typedef struct
     int memory;
 } process;
 
-
 void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, float *avgTR, float *avgWT);
 void main()
 {
+
     float avgTR = 0.0;
     float avgWT = 0.0;
     float avg_WaitTime, avg_TurnaroundTime, avg_cycles, avg_MemoryFootprint, totalWaiting = 0, totalTurnAround = 0, totalCycle = 0, totalMemoryFootprint = 0;
@@ -67,20 +67,17 @@ void main()
         count++;
     }
 
-/*
-    for (int i = 0; i < count; i++)
-    {
-        printf("%d,%d,%d\n", pArray[i].pid, pArray[i].burstime, pArray[i].memory);
-    }
-*/
+    /*
+        for (int i = 0; i < count; i++)
+        {
+            printf("%d,%d,%d\n", pArray[i].pid, pArray[i].burstime, pArray[i].memory);
+        }
+    */
     fclose(fp);
-    //printf("%d", pArray[3].burstime);
-
+    // printf("%d", pArray[3].burstime);
 
     int low = 0;
     int high = totalNumberOfProcess - 1;
-
-
 
     // Orders the list, this greedy/brute force algorithm
     // is ordering it in Descending order from largest burst time to smallest.
@@ -88,23 +85,29 @@ void main()
     {
         for (int l = j + 1; l < totalNumberOfProcess; l++)
         {
-            if (pArray[j].burstime < pArray[l].burstime)
+            if (pArray[j].burstime <= pArray[l].burstime)
             {
-                // Swaps the burstTime value in the correct order based on how fast
-                // the process terminates.
-                int temp = pArray[j].burstime;
-                pArray[j].burstime = pArray[l].burstime;
-                pArray[l].burstime = temp;
+                if (pArray[j].memory < pArray[l].memory)
+                {
 
-                // Swaps and updates what ordering processor needs to be in.
-                int tempProcessor = pArray[j].pid;
-                pArray[j].pid = pArray[l].pid;
-                pArray[l].pid = tempProcessor;
+                    // Swaps the burstTime value in the correct order based on how fast
+                    // the process terminates.
+                    int temp = pArray[j].burstime;
+                    pArray[j].burstime = pArray[l].burstime;
+                    pArray[l].burstime = temp;
+
+                    // Swaps and updates what ordering processor needs to be in.
+                    int tempProcessor = pArray[j].pid;
+                    pArray[j].pid = pArray[l].pid;
+                    pArray[l].pid = tempProcessor;
+
+                    int tempMem = pArray[j].memory;
+                    pArray[j].memory = pArray[l].memory;
+                    pArray[l].memory = tempMem;
+                }
             }
         }
     }
-
-
 
     int pointer1 = 0;
     int pointer2 = totalNumberOfProcess - 1;
@@ -119,18 +122,21 @@ void main()
         int tempProcessor = pArray[pointer1].pid;
         pArray[pointer1].pid = pArray[pointer2].pid;
         pArray[pointer2].pid = tempProcessor;
+
+        int tempMem = pArray[pointer1].memory;
+        pArray[pointer1].memory = pArray[pointer2].memory;
+        pArray[pointer2].memory = tempMem;
+
         pointer1++;
         pointer2--;
     }
 
-
-/*
-    for (int i = 0; i < count; i++)
-    {
-        printf("p:%d\t|\t%d\n", pArray[i].pid ,pArray[i].burstime);
-    }
-*/
-
+    /*
+        for (int i = 0; i < count; i++)
+        {
+            printf("p:%d\t|\t%d\n", pArray[i].pid ,pArray[i].burstime);
+        }
+    */
 
     // Here we modify schedule so that we move processes to 3 efficiency cores
     // or 3 high-power cores based on burstime.
@@ -139,34 +145,34 @@ void main()
     // efficiency cores or high perf. cores, scheudle them, compute the turnaoround time,
     // and benchmark them.
     // 1) schedule algorithm to assign to efficinecy cores or high performance cores.
-
-    // Ready list is sorted from short to long processes (Burt times)
-    // Select processes from the beginning of the list and assign them to the efficiency cores
-    // Select processes from the end of the ready list and assign them to the high-power cores
+    // 2) first 3 fast cores with small memory availability and the third half
+    //      will have bigger memory availability.
 
     int readyIndexTop = 0;
     int readyIndexBottom = totalNumberOfProcess - 1;
     int indexTop = 0;
     int indexBottom = 0;
-  
+
+    int smallMemory = 0;
+    int largerMemory = 0;
 
     while (readyIndexTop < readyIndexBottom)
     {
         if (indexTop >= totalNumberOfProcess / numOfProcessors)
         {
             indexTop = 0;
-        } 
+        }
 
         if (indexBottom >= totalNumberOfProcess / numOfProcessors)
         {
             indexBottom = 0;
-        } 
+        }
 
-        // Efficiency cores
+    
+        // Efficiency cores.
         if (processor1[indexTop].pid == -1)
         {
             processor1[indexTop] = pArray[readyIndexTop];
-            
         }
         else if (processor2[indexTop].pid == -1)
         {
@@ -177,11 +183,10 @@ void main()
             processor3[indexTop] = pArray[readyIndexTop];
         }
 
-        // High-power cores.
+        // High-power cores
         if (processor4[indexBottom].pid == -1)
         {
             processor4[indexBottom] = pArray[readyIndexBottom];
-            
         }
         else if (processor5[indexBottom].pid == -1)
         {
@@ -195,10 +200,9 @@ void main()
         indexBottom++;
         readyIndexTop++;
         readyIndexBottom--;
-
     }
 
-    file = fopen("Q2.txt", "w");
+    file = fopen("Q3.txt", "w");
     if (file == NULL)
     {
         printf("Unable to create file.\n");
@@ -233,11 +237,11 @@ void main()
             calculate(processor6, totalNumberOfProcess, file, j, &avgTR, &avgWT);
         }
     }
-  
-    printf("Overall WT AVG: %f", avgWT / (numOfProcessors));
-    printf("\tOverall TR AVG: %f", avgTR / (numOfProcessors));
-    fprintf(file, "Overall WT AVG: %f", avgWT / (numOfProcessors));
-    fprintf(file, "\tOverall TR AVG: %f", avgTR / (numOfProcessors));
+
+    printf("Overall WT AVG: %f", avgWT / (totalNumberOfProcess / 6));
+    printf("\tOverall TR AVG: %f", avgTR / (totalNumberOfProcess / 6));
+    fprintf(file, "Overall WT AVG: %f", avgWT / (totalNumberOfProcess / 6));
+    fprintf(file, "\tOverall TR AVG: %f", avgTR / (totalNumberOfProcess / 6));
     fclose(file);
 }
 
@@ -292,8 +296,7 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
     printf("\nTurnaround Time AVG = %f MB", avg_TurnaroundTime);
     printf("\n-----------------------------------------------");
     printf("\n\n");
-    
+
     *avgTR += avg_TurnaroundTime;
     *avgWT += avg_WaitTime;
-  
 }

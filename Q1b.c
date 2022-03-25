@@ -9,8 +9,8 @@ typedef struct
     int memory;
 } process;
 
-
 void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, float *avgTR, float *avgWT);
+
 void main()
 {
     float avgTR = 0.0;
@@ -67,21 +67,13 @@ void main()
         count++;
     }
 
-/*
     for (int i = 0; i < count; i++)
     {
         printf("%d,%d,%d\n", pArray[i].pid, pArray[i].burstime, pArray[i].memory);
     }
-*/
+
     fclose(fp);
-    //printf("%d", pArray[3].burstime);
-
-
-    int low = 0;
-    int high = totalNumberOfProcess - 1;
-
-
-
+    printf("%d", pArray[3].burstime);
     // Orders the list, this greedy/brute force algorithm
     // is ordering it in Descending order from largest burst time to smallest.
     for (int j = 0; j < totalNumberOfProcess - 1; j++)
@@ -104,8 +96,6 @@ void main()
         }
     }
 
-
-
     int pointer1 = 0;
     int pointer2 = totalNumberOfProcess - 1;
     // Re-Sorts the list into ascending order.
@@ -123,82 +113,44 @@ void main()
         pointer2--;
     }
 
-
-/*
-    for (int i = 0; i < count; i++)
+    int readyIndex = 0;
+    int index = 0;
+    while (readyIndex < totalNumberOfProcess)
     {
-        printf("p:%d\t|\t%d\n", pArray[i].pid ,pArray[i].burstime);
-    }
-*/
-
-
-    // Here we modify schedule so that we move processes to 3 efficiency cores
-    // or 3 high-power cores based on burstime.
-
-    // come up with a scheduling algorithm that assigns processes to either
-    // efficiency cores or high perf. cores, scheudle them, compute the turnaoround time,
-    // and benchmark them.
-    // 1) schedule algorithm to assign to efficinecy cores or high performance cores.
-
-    // Ready list is sorted from short to long processes (Burt times)
-    // Select processes from the beginning of the list and assign them to the efficiency cores
-    // Select processes from the end of the ready list and assign them to the high-power cores
-
-    int readyIndexTop = 0;
-    int readyIndexBottom = totalNumberOfProcess - 1;
-    int indexTop = 0;
-    int indexBottom = 0;
-  
-
-    while (readyIndexTop < readyIndexBottom)
-    {
-        if (indexTop >= totalNumberOfProcess / numOfProcessors)
+        if (index >= totalNumberOfProcess / numOfProcessors)
         {
-            indexTop = 0;
-        } 
-
-        if (indexBottom >= totalNumberOfProcess / numOfProcessors)
-        {
-            indexBottom = 0;
-        } 
-
-        // Efficiency cores
-        if (processor1[indexTop].pid == -1)
-        {
-            processor1[indexTop] = pArray[readyIndexTop];
-            
-        }
-        else if (processor2[indexTop].pid == -1)
-        {
-            processor2[indexTop] = pArray[readyIndexTop];
-        }
-        else if (processor3[indexTop].pid == -1)
-        {
-            processor3[indexTop] = pArray[readyIndexTop];
+            index = 0;
         }
 
-        // High-power cores.
-        if (processor4[indexBottom].pid == -1)
+        if (processor1[index].pid == -1)
         {
-            processor4[indexBottom] = pArray[readyIndexBottom];
-            
+            processor1[index] = pArray[readyIndex];
         }
-        else if (processor5[indexBottom].pid == -1)
+        else if (processor2[index].pid == -1)
         {
-            processor5[indexBottom] = pArray[readyIndexBottom];
+            processor2[index] = pArray[readyIndex];
         }
-        else if (processor6[indexBottom].pid == -1)
+        else if (processor3[index].pid == -1)
         {
-            processor6[indexBottom] = pArray[readyIndexBottom];
+            processor3[index] = pArray[readyIndex];
         }
-        indexTop++;
-        indexBottom++;
-        readyIndexTop++;
-        readyIndexBottom--;
-
+        else if (processor4[index].pid == -1)
+        {
+            processor4[index] = pArray[readyIndex];
+        }
+        else if (processor5[index].pid == -1)
+        {
+            processor5[index] = pArray[readyIndex];
+        }
+        else if (processor6[index].pid == -1)
+        {
+            processor6[index] = pArray[readyIndex];
+        }
+        index++;
+        readyIndex++;
     }
 
-    file = fopen("Q2.txt", "w");
+    file = fopen("Q1B.txt", "w");
     if (file == NULL)
     {
         printf("Unable to create file.\n");
@@ -233,7 +185,7 @@ void main()
             calculate(processor6, totalNumberOfProcess, file, j, &avgTR, &avgWT);
         }
     }
-  
+
     printf("Overall WT AVG: %f", avgWT / (numOfProcessors));
     printf("\tOverall TR AVG: %f", avgTR / (numOfProcessors));
     fprintf(file, "Overall WT AVG: %f", avgWT / (numOfProcessors));
@@ -292,8 +244,7 @@ void calculate(process list[], int totalNumberOfProcess, FILE *file, int process
     printf("\nTurnaround Time AVG = %f MB", avg_TurnaroundTime);
     printf("\n-----------------------------------------------");
     printf("\n\n");
-    
+
     *avgTR += avg_TurnaroundTime;
     *avgWT += avg_WaitTime;
-  
 }
