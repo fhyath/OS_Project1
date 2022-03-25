@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 typedef struct
 {
@@ -76,8 +77,26 @@ void main()
     fclose(fp);
     // printf("%d", pArray[3].burstime);
 
-    int low = 0;
-    int high = totalNumberOfProcess - 1;
+  int readyIndexTop = 0;
+    int readyIndexBottom = totalNumberOfProcess - 1;
+    int indexTop = 0;
+    int indexBottom = 0;
+
+    int smallMemory = 0;
+    int largerMemory = 0;
+
+    int p1Index = 0;
+    int p2Index = 0;
+    int p3Index = 0;
+    int p4Index = 0;
+    int p5Index = 0;
+    int p6Index = 0;
+
+    bool fastProcessorFull = false;
+    bool slowProcessorFull = false;
+
+    int numberOfBig = 0;
+    int numberOfSmall = 0;
 
     // Orders the list, this greedy/brute force algorithm
     // is ordering it in Descending order from largest burst time to smallest.
@@ -112,92 +131,86 @@ void main()
     int pointer1 = 0;
     int pointer2 = totalNumberOfProcess - 1;
     // Re-Sorts the list into ascending order.
-    while (pointer1 <= pointer2)
+    while (readyIndexTop < totalNumberOfProcess)
     {
-        int temp = pArray[pointer1].burstime;
-        pArray[pointer1].burstime = pArray[pointer2].burstime;
-        pArray[pointer2].burstime = temp;
-
-        // Swaps and updates what ordering processor needs to be in.
-        int tempProcessor = pArray[pointer1].pid;
-        pArray[pointer1].pid = pArray[pointer2].pid;
-        pArray[pointer2].pid = tempProcessor;
-
-        int tempMem = pArray[pointer1].memory;
-        pArray[pointer1].memory = pArray[pointer2].memory;
-        pArray[pointer2].memory = tempMem;
-
-        pointer1++;
-        pointer2--;
-    }
-
-    /*
-        for (int i = 0; i < count; i++)
-        {
-            printf("p:%d\t|\t%d\n", pArray[i].pid ,pArray[i].burstime);
+        if (pArray[readyIndexTop].memory > 8000){
+            numberOfBig++;
+        }else {
+            numberOfSmall++;
         }
-    */
+         
 
-    // Here we modify schedule so that we move processes to 3 efficiency cores
-    // or 3 high-power cores based on burstime.
+        // Processes A,B,C are high-power cores, which means they will have 16gb, high storage capacity.
+        // So anything above 8gb. so 8 x 10^9, but techincally 8000 x10 ^ 6
 
-    // come up with a scheduling algorithm that assigns processes to either
-    // efficiency cores or high perf. cores, scheudle them, compute the turnaoround time,
-    // and benchmark them.
-    // 1) schedule algorithm to assign to efficinecy cores or high performance cores.
-    // 2) first 3 fast cores with small memory availability and the third half
-    //      will have bigger memory availability.
+        if ( (pArray[readyIndexTop].memory > 8000 && fastProcessorFull == false) || (slowProcessorFull == true && fastProcessorFull == false) ){
+                // High-power cores.
+            int index;
+             if (slowProcessorFull == true && fastProcessorFull == false){
+                index = readyIndexBottom;
+                    
+            } else {
+                index = readyIndexTop;
+            }
 
-    int readyIndexTop = 0;
-    int readyIndexBottom = totalNumberOfProcess - 1;
-    int indexTop = 0;
-    int indexBottom = 0;
-
-    int smallMemory = 0;
-    int largerMemory = 0;
-
-    while (readyIndexTop < readyIndexBottom)
-    {
-        if (indexTop >= totalNumberOfProcess / numOfProcessors)
-        {
-            indexTop = 0;
+            if (processor1[p1Index].pid == -1)
+            {
+                //printf("\np1Index == %d", p1Index);
+                processor1[p1Index] = pArray[index];
+                p1Index++;
+            }
+            else if (processor2[p2Index].pid == -1)
+            {
+                
+                processor2[p2Index] = pArray[index];
+                //printf("\nprocessor2[p2Index] == %d", processor2[p2Index].pid);
+                p2Index++;
+            }
+            else if (processor3[p3Index].pid == -1)
+            {
+                
+               
+                processor3[p3Index] = pArray[index];
+                
+                p3Index++;
+            }else {
+                
+                fastProcessorFull = true;
+         
+            }
+        }
+        
+        if( (pArray[readyIndexBottom].memory <= 8000 && slowProcessorFull == false) || (fastProcessorFull == true && slowProcessorFull == false) ) {
+             // Efficiency cores
+             int index2;
+             if (fastProcessorFull == true && slowProcessorFull == false){
+                index2 = readyIndexTop;
+                    
+            } else {
+                index2 = readyIndexBottom;
+            }
+            if (processor4[p4Index].pid == -1)
+            {
+                processor4[p4Index] = pArray[index2];
+                p4Index++;
+            }
+            else if (processor5[p5Index].pid == -1)
+            {
+                processor5[p5Index] = pArray[index2];
+                p5Index++;
+            }
+            else if (processor6[p6Index].pid == -1)
+            {
+                processor6[p6Index] = pArray[index2];
+                p6Index++;
+            } else {
+               
+                slowProcessorFull = true;   
+                readyIndexBottom++;             
+            }
         }
 
-        if (indexBottom >= totalNumberOfProcess / numOfProcessors)
-        {
-            indexBottom = 0;
-        }
 
-    
-        // Efficiency cores.
-        if (processor1[indexTop].pid == -1)
-        {
-            processor1[indexTop] = pArray[readyIndexTop];
-        }
-        else if (processor2[indexTop].pid == -1)
-        {
-            processor2[indexTop] = pArray[readyIndexTop];
-        }
-        else if (processor3[indexTop].pid == -1)
-        {
-            processor3[indexTop] = pArray[readyIndexTop];
-        }
-
-        // High-power cores
-        if (processor4[indexBottom].pid == -1)
-        {
-            processor4[indexBottom] = pArray[readyIndexBottom];
-        }
-        else if (processor5[indexBottom].pid == -1)
-        {
-            processor5[indexBottom] = pArray[readyIndexBottom];
-        }
-        else if (processor6[indexBottom].pid == -1)
-        {
-            processor6[indexBottom] = pArray[readyIndexBottom];
-        }
-        indexTop++;
-        indexBottom++;
         readyIndexTop++;
         readyIndexBottom--;
     }
