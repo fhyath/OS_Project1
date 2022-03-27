@@ -13,7 +13,6 @@ typedef struct
 void calculate(process list[], int totalNumberOfProcess, FILE *file, int processorID, float *avgTR, float *avgWT);
 void main()
 {
-
     float avgTR = 0.0;
     float avgWT = 0.0;
     float avg_WaitTime, avg_TurnaroundTime, avg_cycles, avg_MemoryFootprint, totalWaiting = 0, totalTurnAround = 0, totalCycle = 0, totalMemoryFootprint = 0;
@@ -67,15 +66,7 @@ void main()
     {
         count++;
     }
-
-    /*
-        for (int i = 0; i < count; i++)
-        {
-            printf("%d,%d,%d\n", pArray[i].pid, pArray[i].burstime, pArray[i].memory);
-        }
-    */
     fclose(fp);
-    // printf("%d", pArray[3].burstime);
 
     int readyIndexTop = 0;
     int readyIndexBottom = totalNumberOfProcess - 1;
@@ -98,114 +89,56 @@ void main()
     int numberOfBig = 0;
     int numberOfSmall = 0;
 
-    // Orders the list, this greedy/brute force algorithm
-    // is ordering it in Descending order from largest burst time to smallest.
-    for (int j = 0; j < totalNumberOfProcess - 1; j++)
-    {
-        for (int l = j + 1; l < totalNumberOfProcess; l++)
-        {
-            if (pArray[j].burstime <= pArray[l].burstime)
-            {
-
-                // Swaps the burstTime value in the correct order based on how fast
-                // the process terminates.
-                int temp = pArray[j].burstime;
-                pArray[j].burstime = pArray[l].burstime;
-                pArray[l].burstime = temp;
-
-                // Swaps and updates what ordering processor needs to be in.
-                int tempProcessor = pArray[j].pid;
-                pArray[j].pid = pArray[l].pid;
-                pArray[l].pid = tempProcessor;
-
-                int tempMem = pArray[j].memory;
-                pArray[j].memory = pArray[l].memory;
-                pArray[l].memory = tempMem;
-            }
-        }
-    }
 
     int pointer1 = 0;
     int pointer2 = totalNumberOfProcess - 1;
-    // Re-Sorts the list into ascending order.
-    while (readyIndexTop < totalNumberOfProcess)
+
+    int index = 0;
+    while (index < totalNumberOfProcess)
     {
-        // Processes A,B,C are high-power cores, which means they will have 16gb, high storage capacity.
-        // So anything above 8gb. so 8 x 10^9, but techincally 8000 x10 ^ 6
-
-        if ( (pArray[readyIndexTop].memory > 8000 && fastProcessorFull == false) || (slowProcessorFull == true && fastProcessorFull == false) ){
-                // High-power cores.
-            int index;
-             if (slowProcessorFull == true && fastProcessorFull == false){
-                index = readyIndexBottom;
-                    
-            } else {
-                index = readyIndexTop;
-            }
-
-            if (processor1[p1Index].pid == -1)
-            {
-                //printf("\np1Index == %d", p1Index);
-                processor1[p1Index] = pArray[index];
-                p1Index++;
-            }
-            else if (processor2[p2Index].pid == -1)
-            {
-                
-                processor2[p2Index] = pArray[index];
-                //printf("\nprocessor2[p2Index] == %d", processor2[p2Index].pid);
-                p2Index++;
-            }
-            else if (processor3[p3Index].pid == -1)
-            {
-                
-               
-                processor3[p3Index] = pArray[index];
-                
-                p3Index++;
-            }else {
+     if( (pArray[index].memory > 8000 & fastProcessorFull == false) || (slowProcessorFull == true && fastProcessorFull == false) ){
+         if(processor4[p4Index].pid == -1){
+            processor4[p4Index] = pArray[index];
+            p4Index++;
+         }
+         else if(processor5[p5Index].pid == -1){
+            processor5[p5Index] = pArray[index];
+            p5Index++;
+         }
+         else if(processor6[p6Index].pid == -1){
+            processor6[p6Index] = pArray[index];
+            p6Index++;
+         }
+         else {
                 
                 fastProcessorFull = true;
          
             }
+
+    }
+    if( (pArray[index].memory <= 8000  && slowProcessorFull == false) || (fastProcessorFull == true && slowProcessorFull == false) ) {
+        if(processor1[p1Index].pid == -1){
+            processor1[p1Index] = pArray[index];
+            p1Index++;
         }
-        
-        if( (pArray[readyIndexBottom].memory <= 8000 && slowProcessorFull == false) || (fastProcessorFull == true && slowProcessorFull == false) ) {
-             // Efficiency cores
-             int index2;
-             if (fastProcessorFull == true && slowProcessorFull == false){
-                index2 = readyIndexTop;
-                    
-            } else {
-                index2 = readyIndexBottom;
-            }
-            if (processor4[p4Index].pid == -1)
-            {
-                processor4[p4Index] = pArray[index2];
-                p4Index++;
-            }
-            else if (processor5[p5Index].pid == -1)
-            {
-                processor5[p5Index] = pArray[index2];
-                p5Index++;
-            }
-            else if (processor6[p6Index].pid == -1)
-            {
-                processor6[p6Index] = pArray[index2];
-                p6Index++;
-            } else {
+        else if(processor2[p2Index].pid == -1){
+            processor2[p2Index] = pArray[index];
+            p2Index++;
+        }
+        else if(processor3[p3Index].pid == -1){
+            processor3[p3Index] = pArray[index];
+            p3Index++;
+        }
+         else {
                
                 slowProcessorFull = true;   
-                readyIndexBottom++;             
-            }
-        }
+         }
+       }
+       index++;
 
-
-        readyIndexTop++;
-        readyIndexBottom--;
     }
 
-    file = fopen("Q3.txt", "w");
+    file = fopen("Q4.txt", "w");
     if (file == NULL)
     {
         printf("Unable to create file.\n");
