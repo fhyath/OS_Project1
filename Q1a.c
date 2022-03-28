@@ -71,39 +71,51 @@ void main()
     fclose(fp);
     //printf("%d",pArray[3].burstime);
 
+    int p1Index = 0;
+    int p2Index = 0;
+    int p3Index = 0;
+    int p4Index = 0;
+    int p5Index = 0;
+    int p6Index = 0;
    
     int readyIndex = 0;
-    int index = 0;
+    int index = 1;
     while (readyIndex < totalNumberOfProcess)
     {
-        if (index >= totalNumberOfProcess / numOfProcessors)
+        if (index > numOfProcessors)
         {
-            index = 0;
+            index = 1;
         }
 
-        if (processor1[index].pid == -1)
+        if (index == 1)
         {
-            processor1[index] = pArray[readyIndex];
+             processor1[p1Index] = pArray[readyIndex];
+            p1Index++;
         }
-        else if (processor2[index].pid == -1)
+        else if (index == 2)
         {
-            processor2[index] = pArray[readyIndex];
+           processor2[p2Index] = pArray[readyIndex];
+            p2Index++;
         }
-        else if (processor3[index].pid == -1)
+        else if (index == 3)
         {
-            processor3[index] = pArray[readyIndex];
+            processor3[p3Index] = pArray[readyIndex];
+            p3Index++;
         }
-        else if (processor4[index].pid == -1)
+        else if (index == 4)
         {
-            processor4[index] = pArray[readyIndex];
+             processor4[p4Index] = pArray[readyIndex];
+            p4Index++;
         }
-        else if (processor5[index].pid == -1)
+        else if (index == 5)
         {
-            processor5[index] = pArray[readyIndex];
+             processor5[p5Index] = pArray[readyIndex];
+            p5Index++;
         }
-        else if (processor6[index].pid == -1)
+        else if (index ==6)
         {
-            processor6[index] = pArray[readyIndex];
+             processor6[p6Index] = pArray[readyIndex];
+            p6Index++;
         }
         index++;
         readyIndex++;
