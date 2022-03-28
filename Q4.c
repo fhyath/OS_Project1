@@ -16,7 +16,7 @@ void main()
     float avgTR = 0.0;
     float avgWT = 0.0;
     float avg_WaitTime, avg_TurnaroundTime, avg_cycles, avg_MemoryFootprint, totalWaiting = 0, totalTurnAround = 0, totalCycle = 0, totalMemoryFootprint = 0;
-    printf("This program is utilizing SJF algorithm:\n\n");
+    printf("This program is utilizing modified FIFO algorithm:\n\n");
 
     // File Variables
     FILE *file;

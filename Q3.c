@@ -143,26 +143,26 @@ void main()
                 index = readyIndexTop;
             }
 
-            if (processor1[p1Index].pid == -1)
+            if (processor4[p4Index].pid == -1)
             {
                 //printf("\np1Index == %d", p1Index);
-                processor1[p1Index] = pArray[index];
-                p1Index++;
+                processor4[p4Index] = pArray[index];
+                p4Index++;
             }
-            else if (processor2[p2Index].pid == -1)
+            else if (processor5[p5Index].pid == -1)
             {
                 
-                processor2[p2Index] = pArray[index];
+                processor5[p5Index] = pArray[index];
                 //printf("\nprocessor2[p2Index] == %d", processor2[p2Index].pid);
-                p2Index++;
+                p5Index++;
             }
-            else if (processor3[p3Index].pid == -1)
+            else if (processor6[p6Index].pid == -1)
             {
                 
                
-                processor3[p3Index] = pArray[index];
+                processor6[p6Index] = pArray[index];
                 
-                p3Index++;
+                p6Index++;
             }else {
                 
                 fastProcessorFull = true;
@@ -179,20 +179,20 @@ void main()
             } else {
                 index2 = readyIndexBottom;
             }
-            if (processor4[p4Index].pid == -1)
+            if (processor1[p1Index].pid == -1)
             {
-                processor4[p4Index] = pArray[index2];
-                p4Index++;
+                processor1[p1Index] = pArray[index2];
+                p1Index++;
             }
-            else if (processor5[p5Index].pid == -1)
+            else if (processor2[p2Index].pid == -1)
             {
-                processor5[p5Index] = pArray[index2];
-                p5Index++;
+                processor2[p2Index] = pArray[index2];
+                p2Index++;
             }
-            else if (processor6[p6Index].pid == -1)
+            else if (processor3[p3Index].pid == -1)
             {
-                processor6[p6Index] = pArray[index2];
-                p6Index++;
+                processor3[p3Index] = pArray[index2];
+                p3Index++;
             } else {
                
                 slowProcessorFull = true;   

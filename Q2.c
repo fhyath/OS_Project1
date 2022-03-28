@@ -148,6 +148,13 @@ void main()
     int readyIndexBottom = totalNumberOfProcess - 1;
     int indexTop = 0;
     int indexBottom = 0;
+
+    int p1Index = 0;
+    int p2Index = 0;
+    int p3Index = 0;
+    int p4Index = 0;
+    int p5Index = 0;
+    int p6Index = 0;
   
 
     while (readyIndexTop < readyIndexBottom)
